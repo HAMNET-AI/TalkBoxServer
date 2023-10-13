@@ -1,0 +1,8 @@
+__pycache__
+.env
+embedding_index
+.vscode
+embedding
+.idea
+parse_res
+novels/*/*

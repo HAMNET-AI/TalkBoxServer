@@ -1,0 +1,60 @@
+import bson
+import json
+import logging
+from sqlalchemy import (
+    Column, TIMESTAMP, Integer, String, Text,
+    text, BINARY,
+    Float, DECIMAL, ForeignKey,
+)
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.hybrid import hybrid_property
+from datetime import datetime
+
+B = declarative_base()
+
+class ObjID(BINARY):
+    """基于bson.ObjectId用于mysql主键的自定义类型"""
+    def bind_processor(self, dialect):
+        def processor(value):
+            return bson.ObjectId(value).binary if bson.ObjectId.is_valid(value) else value
+
+        return processor
+
+    def result_processor(self, dialect, coltype):
+        def processor(value):
+            return str(bson.ObjectId(value)) if bson.ObjectId.is_valid(value) else value
+
+        return processor
+
+    @staticmethod
+    def new_id():
+        return str(bson.ObjectId())
+
+    @staticmethod
+    def is_valid(value):
+        return bson.ObjectId.is_valid(value)
+
+class Base(B):
+    """公共字段"""
+    __abstract__ = True
+    id = Column(ObjID(12), primary_key=True)
+
+    status = Column(Integer, nullable=True, server_default=text("'0'"), comment="状态")
+    created = Column(TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP"), comment="创建时间")
+    modified = Column(TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"), comment="修改时间")
+
+class book(Base):
+    """小说表"""
+    __tablename__ = 'book'
+
+    name = Column(String(128), nullable=True, server_default=text("''"), comment="小说名")
+    author = Column(String(128), nullable=True, server_default=text("''"), comment="小说作者")
+    image = Column(String(256), nullable=True, server_default=text("''"), comment="小说封面")
+
+
+class character(Base):
+    """人物信息表"""
+    __tablename__ = 'book'
+    book_id = Column(ObjID(12), ForeignKey('book.id'), nullable=True, comment="小说ID")
+    name = Column(String(128), nullable=True, server_default=text("''"), comment="姓名")
+    image = Column(String(256), nullable=True, server_default=text("''"), comment="人物头像")
