@@ -38,8 +38,6 @@ class Base(B):
     """公共字段"""
     __abstract__ = True
     id = Column(ObjID(12), primary_key=True)
-
-    status = Column(Integer, nullable=True, server_default=text("'0'"), comment="状态")
     created = Column(TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP"), comment="创建时间")
     modified = Column(TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"), comment="修改时间")
 
@@ -54,7 +52,15 @@ class book(Base):
 
 class character(Base):
     """人物信息表"""
-    __tablename__ = 'book'
+    __tablename__ = 'character'
     book_id = Column(ObjID(12), ForeignKey('book.id'), nullable=True, comment="小说ID")
     name = Column(String(128), nullable=True, server_default=text("''"), comment="姓名")
     image = Column(String(256), nullable=True, server_default=text("''"), comment="人物头像")
+
+
+class ChatLog(Base):
+    """对话历史表"""
+    __tablename__ = 'chatlog'
+    character_id = Column(ObjID(12), ForeignKey('character.id'), nullable=True, comment="人物ID")
+    query = Column(String(128), nullable=True, server_default=text("''"), comment="询问")
+    answer = Column(String(256), nullable=True, server_default=text("''"), comment="回答")
