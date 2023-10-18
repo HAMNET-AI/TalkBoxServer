@@ -41,26 +41,27 @@ class Base(B):
     created = Column(TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP"), comment="创建时间")
     modified = Column(TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"), comment="修改时间")
 
-class book(Base):
+class Novel(Base):
     """小说表"""
-    __tablename__ = 'book'
+    __tablename__ = 'novel'
 
     name = Column(String(128), nullable=True, server_default=text("''"), comment="小说名")
     author = Column(String(128), nullable=True, server_default=text("''"), comment="小说作者")
     image = Column(String(256), nullable=True, server_default=text("''"), comment="小说封面")
+    index = Column(String(256), nullable=True, server_default=text("''"), comment="小说index文件相对路径")
 
 
-class character(Base):
+class Character(Base):
     """人物信息表"""
     __tablename__ = 'character'
-    book_id = Column(ObjID(12), ForeignKey('book.id'), nullable=True, comment="小说ID")
+    novel_id = Column(ObjID(12), ForeignKey('novel.id'), nullable=True, comment="小说ID")
     name = Column(String(128), nullable=True, server_default=text("''"), comment="姓名")
     image = Column(String(256), nullable=True, server_default=text("''"), comment="人物头像")
-
+    index = Column(String(256), nullable=True, server_default=text("''"), comment="人物description文件相对路径")
 
 class ChatLog(Base):
     """对话历史表"""
     __tablename__ = 'chatlog'
     character_id = Column(ObjID(12), ForeignKey('character.id'), nullable=True, comment="人物ID")
-    query = Column(String(128), nullable=True, server_default=text("''"), comment="询问")
-    answer = Column(String(256), nullable=True, server_default=text("''"), comment="回答")
+    query = Column(String(1024), nullable=True, server_default=text("''"), comment="询问")
+    answer = Column(String(1024), nullable=True, server_default=text("''"), comment="回答")
