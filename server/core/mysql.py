@@ -3,6 +3,16 @@ from tornado.options import options
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+# 先创建表
+# from sqlalchemy import create_engine
+# from sqlalchemy.orm import sessionmaker
+# from core.schema import Base, Novel  # 替换 'your_module' 为包含你的模型的模块名
+
+# # 创建数据库引擎
+# engine = create_engine("mysql+pymysql://root:1662326564gsh@127.0.0.1:3306/talk_box?charset=utf8")  # 替换 'your_database_uri' 为你的数据库连接URI
+
+# # 创建表
+# Base.metadata.create_all(engine)
 
 mysql_options = {
     'pool_size': 64,
@@ -26,7 +36,7 @@ engines = {}
 def get_engine_by_name(name, isolation_level='REPEATABLE READ'):
     import logging
     logging.info('get_engine_by_name %r %r', name, isolation_level)
-    uris = options.MYSQL[name]
+    uris = "mysql+pymysql://root:1662326564gsh@127.0.0.1:3306/talk_box?charset=utf8"
     if not isinstance(uris, list):
         uris = [uris]
     # 将连接池做一下缓存

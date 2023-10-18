@@ -1,6 +1,3 @@
-from collections import namedtuple
-from core.mysql import get_engine_by_name,get_session_by_name
-
 from core.utils import row2dict
 from sqlalchemy import func, sql
 from core.base import MysqlModel
