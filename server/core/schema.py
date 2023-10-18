@@ -40,7 +40,7 @@ class Base(B):
     id = Column(ObjID(12), primary_key=True)
     created = Column(TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP"), comment="创建时间")
     modified = Column(TIMESTAMP, nullable=False, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"), comment="修改时间")
-
+#330000000000000000000000
 class Novel(Base):
     """小说表"""
     __tablename__ = 'novel'

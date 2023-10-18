@@ -19,18 +19,17 @@ load_dotenv()
 api_keys = os.getenv('API_KEYS')
 HOST = os.getenv('HOST')
 PORT = os.getenv('PORT')
-
         
 @route(r"/novel")
 class NovelHandler(tornado.web.RequestHandler):
     _json_args = {}
     # get /novel
     @arguments
-    def get(
+    async def get(
         self,
         model: ServerModel = None
     ):
-        novels, total = model.get_novel_list()
+        novels, total = await model.get_novel_list()
         self.finish({
             "code": 0,
             "msg": "success",
@@ -47,42 +46,33 @@ class NovelHandler(tornado.web.RequestHandler):
         })
         
 
-@route(r"/novel/([0-9a-z]{24})")
+@route(r"/novel/([0-9a-z]+)")
 class CharacterHandler(tornado.web.RequestHandler):
     _json_args = {}
     # get /novel/{novel_id}
-    _json_args = {}
-    def prepare(self):
-        try:
-            body = self.request.body.decode('utf8')
-            self._json_args = body and json.loads(body) or {}
-        except Exception as e:
-            logging.error(e)
-
     @arguments
-    def get(
+    async def get(
         self,
         novel_id: str = "",
         model: ServerModel = None
     ):
-        characters, total = model.get_character_list(novel_id)
+        characters, total = await model.get_character_list(novel_id)
         self.finish({
             "code": 0,
             "msg": "success",
             "total": total,
             "data": [
                 {
-                    "id": novel["id"],
-                    "name": novel["name"],
-                    "author": novel["author"],
-                    "image": novel["image"]
+                    "character_id": character["id"],
+                    "name": character["name"],
+                    "image": character["image"]
 
-                } for novel in characters
+                } for character in characters
             ]
         })
 
 
-@route(r"/novel/character/([0-9a-z]{24})")
+@route(r"/novel/character/([0-9a-z]+)")
 class ChatHandler(tornado.web.RequestHandler):
     _json_args = {}
     # get /novel/character/{character_id}
@@ -92,7 +82,7 @@ class ChatHandler(tornado.web.RequestHandler):
         character_id: str = "",
         model: ServerModel = None
     ):
-        info, chatlogs, total = model.get_character_info(character_id)
+        info, chatlogs, total =await model.get_character_info(character_id)
         self.finish({
             "code": 0,
             "msg": "success",
@@ -111,13 +101,22 @@ class ChatHandler(tornado.web.RequestHandler):
 @route(r"/novel/character/chat")
 class ChatHandler(tornado.web.RequestHandler):
     _json_args = {}
-    # get /novel/character/chat
+    # post /novel/character/chat
     @arguments
-    def post(self, model: ServerModel = None):
-        characters = model.get_character_list()
-        self.finish(
-
-        )
+    async def post(
+        self,
+        query: str = "",
+        character_id: str = "",
+        model: ServerModel = None
+    ):
+        answer = model.chat(query,character_id)
+        self.finish({
+            "code": 0,
+            "msg": "success",
+            "data": [{
+                "content": answer
+            }]
+        })
 
 
 if __name__ == "__main__":

@@ -2,19 +2,20 @@ from core.utils import row2dict
 from sqlalchemy import func, sql
 from core.base import MysqlModel
 from core.schema import *
-    
+from core.chat import *
 
 class ServerModel(MysqlModel):
 
-    def get_novel_list(self):
+    async def get_novel_list(self):
         novels = self.session.query(Novel)
         total = novels.count()
         
         if total == 0:
-            return [], 0
-        return [row2dict(item) for item in self.query_all(novels)], total
+            return [], total
+        #return [row2dict(item) for item in novels.all()], total
+        return [row2dict(item) for item in novels.all()], total
 
-    def get_character_list(self,novel_id):
+    async def get_character_list(self,novel_id):
         characters = self.session.query(Character).filter(
             Character.novel_id==novel_id
         )
@@ -22,9 +23,9 @@ class ServerModel(MysqlModel):
         
         if total == 0:
             return [], 0
-        return [row2dict(item) for item in self.query_all(characters)], total
+        return [row2dict(item) for item in characters.all()], total
 
-    def get_character_info(self,character_id):
+    async def get_character_info(self,character_id):
         character = self.session.query(Character).filter(
             Character.id==character_id
         ).first()
@@ -34,4 +35,15 @@ class ServerModel(MysqlModel):
         )
 
         total = chatlogs.count()
-        return row2dict(character),[row2dict(item) for item in self.query_all(chatlogs)], total
+        #query_all 出错
+        #return row2dict(character),[row2dict(item) for item in self.query_all(chatlogs)], total
+        return row2dict(character),[row2dict(item) for item in chatlogs.all()], total
+    
+    async def chat(self,query,character_id):
+        import asyncio
+
+        openai.openAIAPI.lock = asyncio.Lock()
+        openAI_semaphore = asyncio.Semaphore(50)
+        #     asyncio.run(main('novels/', "santi", "ye"))
+        await chat_book(openAI_semaphore, workPath, book, role)
+        

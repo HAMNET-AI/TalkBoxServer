@@ -227,12 +227,6 @@ async def chat_book(openAI_semaphore, work_path: str, book_name: str, role_name:
             # 从索引中搜索
             search_texts, search_results = search_query_from_vector_db(
                 parse_json_path, query)
-            
-            # print("search_texts")
-            # print(search_texts)
-            # print("search_results")
-            # print(search_results)
-
 
             res = await openai.generate_answer_by_search_results(
                 openAI_semaphore, search_texts, query, book_name, role_name,role_desc)
