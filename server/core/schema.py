@@ -51,9 +51,9 @@ class Novel(Base):
     index = Column(String(256), nullable=True, server_default=text("''"), comment="小说index文件相对路径")
 
 
-class Character(Base):
+class People(Base):
     """人物信息表"""
-    __tablename__ = 'character'
+    __tablename__ = 'people'
     novel_id = Column(ObjID(12), ForeignKey('novel.id'), nullable=True, comment="小说ID")
     name = Column(String(128), nullable=True, server_default=text("''"), comment="姓名")
     image = Column(String(256), nullable=True, server_default=text("''"), comment="人物头像")
@@ -62,6 +62,7 @@ class Character(Base):
 class ChatLog(Base):
     """对话历史表"""
     __tablename__ = 'chatlog'
-    character_id = Column(ObjID(12), ForeignKey('character.id'), nullable=True, comment="人物ID")
+    people_id = Column(ObjID(12), ForeignKey('people.id'), nullable=True, comment="人物ID")
     query = Column(String(1024), nullable=True, server_default=text("''"), comment="询问")
     answer = Column(String(1024), nullable=True, server_default=text("''"), comment="回答")
+

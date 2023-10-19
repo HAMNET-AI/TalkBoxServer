@@ -36,7 +36,7 @@ engines = {}
 def get_engine_by_name(name, isolation_level='REPEATABLE READ'):
     import logging
     logging.info('get_engine_by_name %r %r', name, isolation_level)
-    uris = "mysql+pymysql://root:1662326564gsh@127.0.0.1:3306/talk_box?charset=utf8"
+    uris = ""
     if not isinstance(uris, list):
         uris = [uris]
     # 将连接池做一下缓存

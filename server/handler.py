@@ -1,3 +1,7 @@
+import os,sys
+root_path = os.path.abspath(__file__)
+sys.path.append(root_path)
+
 import logging
 import json
 
@@ -12,13 +16,15 @@ from core.utils import *
 
 
 from dotenv import load_dotenv
-import os
+import os,sys
 from model import ServerModel
 # 读取 .env file.
 load_dotenv()
 api_keys = os.getenv('API_KEYS')
 HOST = os.getenv('HOST')
 PORT = os.getenv('PORT')
+
+
         
 @route(r"/novel")
 class NovelHandler(tornado.web.RequestHandler):
@@ -71,6 +77,25 @@ class CharacterHandler(tornado.web.RequestHandler):
             ]
         })
 
+@route(r"/novel/character/chat")
+class ChatHandler(tornado.web.RequestHandler):
+    _json_args = {}
+    # post /novel/character/chat
+    @arguments
+    async def post(
+        self,
+        query: str = "",
+        character_id: str = "",
+        model: ServerModel = None
+    ):
+        answer = await model.chat(query,character_id)
+        self.finish({
+            "code": 0,
+            "msg": "success",
+            "data": [{
+                "content": answer
+            }]
+        })
 
 @route(r"/novel/character/([0-9a-z]+)")
 class ChatHandler(tornado.web.RequestHandler):
@@ -82,7 +107,9 @@ class ChatHandler(tornado.web.RequestHandler):
         character_id: str = "",
         model: ServerModel = None
     ):
+        #
         info, chatlogs, total =await model.get_character_info(character_id)
+        info = info[0]
         self.finish({
             "code": 0,
             "msg": "success",
@@ -98,25 +125,7 @@ class ChatHandler(tornado.web.RequestHandler):
         })
 
 
-@route(r"/novel/character/chat")
-class ChatHandler(tornado.web.RequestHandler):
-    _json_args = {}
-    # post /novel/character/chat
-    @arguments
-    async def post(
-        self,
-        query: str = "",
-        character_id: str = "",
-        model: ServerModel = None
-    ):
-        answer = model.chat(query,character_id)
-        self.finish({
-            "code": 0,
-            "msg": "success",
-            "data": [{
-                "content": answer
-            }]
-        })
+
 
 
 if __name__ == "__main__":

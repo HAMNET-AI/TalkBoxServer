@@ -61,12 +61,12 @@ def embedding_paper(json_path: str = '', chunk_size=512):
     #             'summary': summary,
     #         })
     openaiEmbedding = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
-
+    infos = []
+    metadatas = []
     for chapter in chapters:
         plots = chapter.get('plots', [])
         title = chapter.get('title', '')
-        infos = []
-        metadatas = []
+
         for plot in plots:
             section_id += 1
             text = plot.get('text', '')
@@ -96,19 +96,17 @@ def embedding_paper(json_path: str = '', chunk_size=512):
     # aka = OpenAIEmbeddings(openai_api_base="https://api.aios.chat/v1/",openai_api_key=OPENAI_API_KEY)
     
 
-        #一次性将所有的infos 与 metadatas打包发送，会被限速
-        store = FAISS.from_texts(infos,
-                                openaiEmbedding,
-                                metadatas=metadatas)
-            
-        # 保存索引文件
-        print("type(store.index)")
-        print(type(store.index))
-        faiss.write_index(store.index,
-                        os.path.join(INDEX_PATH, f"{json_name}.index"))
-        store.index = None
-        with open(os.path.join(INDEX_PATH, f"{json_name}.pkl"), "ab") as f:
-            pickle.dump(store, f)
+    #一次性将所有的infos 与 metadatas打包发送，会被限速
+    store = FAISS.from_texts(infos,
+                            openaiEmbedding,
+                            metadatas=metadatas)
+        
+    # 保存索引文件
+    faiss.write_index(store.index,
+                    os.path.join(INDEX_PATH, f"{json_name}.index"))
+    store.index = None
+    with open(os.path.join(INDEX_PATH, f"{json_name}.pkl"), "wb") as f:
+        pickle.dump(store, f)
 
 
 from langchain.chat_models import ChatOpenAI
