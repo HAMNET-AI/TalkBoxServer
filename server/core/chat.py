@@ -1,13 +1,11 @@
 from typing import Dict, List, Tuple
 import json
-import re
 from core.utils import chunk_text_by_max_token, token_str
 import pickle
 import faiss
 from langchain.vectorstores import FAISS
 from langchain.embeddings import OpenAIEmbeddings
 from core.openai_prompt import OpenAI
-import asyncio
 from dotenv import load_dotenv
 import os
  

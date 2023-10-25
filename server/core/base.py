@@ -1,15 +1,7 @@
-import json
-import asyncio
-import functools
-import time
 from collections import namedtuple
-import nest_asyncio
 from core.mysql import get_engine_by_name,get_session_by_name
-
-from core.utils import row2dict
 from sqlalchemy import func, sql
 from sqlalchemy.orm.scoping import scoped_session
-from tornado.httpclient import AsyncHTTPClient, HTTPRequest
 from tornado.options import options
 from tornado.concurrent import run_on_executor
 from concurrent.futures import ThreadPoolExecutor

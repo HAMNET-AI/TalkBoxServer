@@ -1,14 +1,10 @@
 import bson
-import json
-import logging
 from sqlalchemy import (
     Column, TIMESTAMP, Integer, String, Text,
     text, BINARY,
     Float, DECIMAL, ForeignKey,
 )
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.ext.hybrid import hybrid_property
-from datetime import datetime
 
 B = declarative_base()
 
