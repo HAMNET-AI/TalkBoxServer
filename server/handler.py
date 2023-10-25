@@ -21,6 +21,7 @@ from model import ServerModel
 # 读取 .env file.
 load_dotenv()
 api_keys = os.getenv('API_KEYS')
+print(api_keys)
 HOST = os.getenv('HOST')
 PORT = os.getenv('PORT')
 
@@ -29,6 +30,12 @@ PORT = os.getenv('PORT')
 @route(r"/novel")
 class NovelHandler(tornado.web.RequestHandler):
     _json_args = {}
+    def prepare(self):
+        try:
+            body = self.request.body.decode('utf8')
+            self._json_args = body and json.loads(body) or {}
+        except Exception as e:
+            logging.error(e)
     # get /novel
     @arguments
     async def get(
@@ -55,6 +62,12 @@ class NovelHandler(tornado.web.RequestHandler):
 @route(r"/novel/([0-9a-z]+)")
 class CharacterHandler(tornado.web.RequestHandler):
     _json_args = {}
+    def prepare(self):
+        try:
+            body = self.request.body.decode('utf8')
+            self._json_args = body and json.loads(body) or {}
+        except Exception as e:
+            logging.error(e)
     # get /novel/{novel_id}
     @arguments
     async def get(
@@ -80,6 +93,12 @@ class CharacterHandler(tornado.web.RequestHandler):
 @route(r"/novel/character/chat")
 class ChatHandler(tornado.web.RequestHandler):
     _json_args = {}
+    def prepare(self):
+        try:
+            body = self.request.body.decode('utf8')
+            self._json_args = body and json.loads(body) or {}
+        except Exception as e:
+            logging.error(e)
     # post /novel/character/chat
     @arguments
     async def post(
@@ -100,6 +119,14 @@ class ChatHandler(tornado.web.RequestHandler):
 @route(r"/novel/character/([0-9a-z]+)")
 class ChatHandler(tornado.web.RequestHandler):
     _json_args = {}
+    
+    def prepare(self):
+        try:
+            body = self.request.body.decode('utf8')
+            self._json_args = body and json.loads(body) or {}
+        except Exception as e:
+            logging.error(e)
+
     # get /novel/character/{character_id}
     @arguments
     async def get(

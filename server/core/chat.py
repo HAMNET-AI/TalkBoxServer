@@ -34,6 +34,64 @@ def format_paragraphs(paragraphs: list) -> List[str]:
             res.append(paragraph.get('text', ''))
     return res
 
+# 将文本转换成向量存储
+def embedding_paper(json_path: str = '', chunk_size=512):
+    json_name = json_path.split('/')[-1].replace('.json', '')
+    # 如果已经存在索引文件，则不再重复生成
+    if os.path.exists(os.path.join(INDEX_PATH, f"{json_name}.pkl")):
+        return
+    with open(json_path, 'r',encoding='utf-8') as f:
+        data = json.load(f)
+    chapters = data['chapter'].copy()
+    
+    section_id = 0
+    infos = []
+    metadatas = []
+    for chapter in chapters:
+
+        plots = chapter.get('plots', [])
+        title = chapter.get('title', '')
+
+        for plot in plots:
+            section_id += 1
+            text = plot.get('text', '')
+            embeddings = plot.get('embeddings', [])
+            chunks = chunk_text_by_max_token(text)
+            for chunk in chunks:
+                infos.append(chunk)
+                metadatas.append({
+                    'section_id': section_id,
+                    'section_title': title,
+                    'summary': '\n'.join(embeddings),
+                    'text': text,
+                    'chunk_text': chunk
+                })
+            for embedding in embeddings:
+                infos.append(embedding)
+                metadatas.append({
+                    'section_id': section_id,
+                    'section_title': title,
+                    'summary': '\n'.join(embeddings),
+                    'text': text,
+                    'chunk_text': embedding
+                })
+
+    openaiEmbedding = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
+
+    store = FAISS.from_texts(infos,
+                            openaiEmbedding,
+                            metadatas=metadatas)
+    # 将文本转换成向量
+    # aka = OpenAIEmbeddings(openai_api_base="https://api.aios.chat/v1/",openai_api_key=OPENAI_API_KEY)
+    #一次性将所有的infos 与 metadatas打包发送，会被限速
+    
+
+    # 保存索引文件
+    faiss.write_index(store.index,
+                    os.path.join(INDEX_PATH, f"{json_name}.index"))
+    store.index = None
+    with open(os.path.join(INDEX_PATH, f"{json_name}.pkl"), "wb") as f:
+        pickle.dump(store, f)
 
 from langchain.chat_models import ChatOpenAI
 
@@ -57,6 +115,7 @@ def search_query_from_vector_db(json_path,
                                 thereshold: float = 0.6) -> (str, Dict):
     json_name = json_path.split('/')[-1].replace('.json', '')
     # 载入索引文件
+    print(os.path.join(INDEX_PATH, f"{json_name}.pkl"))
     if not os.path.exists(os.path.join(
             INDEX_PATH, f"{json_name}.pkl")) or not os.path.exists(
         os.path.join(INDEX_PATH, f"{json_name}.index")):
@@ -138,7 +197,7 @@ async def chat_book(
         res = await openai.generate_answer_by_search_results(
             openAI_semaphore, search_texts, query, book_name, role_name,role_desc)
 
-        print(res)
+        #print(res)
         return res
 
 
